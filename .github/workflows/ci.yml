@@ -1,0 +1,76 @@
+---
+name: deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+    types:
+      - opended
+      - synchronize
+
+
+jobs:
+  deployment_pipeline:
+    runs-on: ubuntu-20.04
+    
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - name: install nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: trigger deployment
+        # when the event_name is push, this means the pull request has been merged to the main branch.
+        if: ${{ github.event_name == "push" }}
+        run: "https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_KEY_ID }}"
+        
+      - name: send discord notification on successful deployment
+        if: ${{ success() }}
+        uses: discord-actions/message@v2
+        with: 
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          message: |
+            from: Github
+            to: ${{ github.actor }}
+            message: A merge has been made to the main branch
+            link_to_repo: https://github.com/malachi43/working-github-actions
+            status: success
+
+        if: ${{ failure() }}
+        uses: discord-actions/message@v2
+        with: 
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          message: |
+            from: Github
+            to: ${{ github.actor }}
+            message: failure encountered during deployment
+            link_to_repo: https://github.com/malachi43/working-github-actions
+            status: success
+
+
+  tag_release:
+    needs:
+      - deployment_pipeline
+    
+    runs-on: ubuntu-20.04
+    
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - name: bump version and push tag
+        if: ${{ github.event_name == "push" }}
+        uses: anothrNick/github-tag-action@1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          PRERELEASE: true
+          DEFAULT_BUMP: patch
