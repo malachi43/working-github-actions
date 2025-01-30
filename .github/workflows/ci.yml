@@ -43,6 +43,7 @@ jobs:
             link_to_repo: https://github.com/malachi43/working-github-actions
             status: success
 
+      - name: check for deployment failures
         if: ${{ failure() }}
         uses: discord-actions/message@v2
         with: 
@@ -50,9 +51,9 @@ jobs:
           message: |
             from: Github
             to: ${{ github.actor }}
-            message: failure encountered during deployment
+            message: a failure has been encountered during deployment
             link_to_repo: https://github.com/malachi43/working-github-actions
-            status: success
+            status: failure
 
 
   tag_release:
