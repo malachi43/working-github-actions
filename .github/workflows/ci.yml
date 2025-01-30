@@ -29,7 +29,7 @@ jobs:
       - name: trigger deployment
         # when the event_name is push, this means the pull request has been merged to the main branch.
         if: ${{ github.event_name == 'push' }}
-        run: https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_KEY_ID }}
+        run: curl https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_KEY_ID }}
         
       - name: send discord notification on successful deployment
         if: ${{ success() }}
