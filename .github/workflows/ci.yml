@@ -71,7 +71,9 @@ jobs:
         uses: anothrNick/github-tag-action@1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
       
+      - name: failure in tagging release
         if: ${{ failure() }}
         uses: discord-actions/message@v2
         with: 
