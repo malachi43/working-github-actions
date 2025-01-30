@@ -73,6 +73,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
           PRERELEASE: false
+          DEFAULT_BUMP: patch
       
       - name: failure in tagging release
         if: ${{ failure() }}
